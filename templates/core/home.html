@@ -1,0 +1,127 @@
+{% extends 'base.html' %} {% load static %} {% block title %} RecetaAI - Inicio
+{% endblock %} {% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/home.css' %}" />
+{% endblock %} {% block content %}
+<div class="home-container">
+  <!-- Header -->
+  <header class="home-header">
+    <div class="header-content">
+      <div class="header-title">
+        <div class="title-icon">
+          <img
+            src="{% static 'media/icons/gorro-de-cocinero.png' %}"
+            alt="Logo RecetaAI"
+            style="width: 60px; height: 60px; object-fit: contain"
+          />
+        </div>
+        <div>
+          <h1>RecetaAI</h1>
+          <p class="subtitle">
+            Cocina inteligente con reconocimiento de ingredientes
+          </p>
+        </div>
+      </div>
+
+      {% if user.is_authenticated %}
+      <div class="user-greeting">
+        <span>
+          Hola, <strong>{{ user.first_name|default:user.email }}</strong>
+        </span>
+        <span class="wave-emoji">👋</span>
+      </div>
+      {% endif %}
+    </div>
+  </header>
+
+  <!-- Cards Container -->
+  <div class="cards-container">
+    <!-- Card 1: Módulo de Reconocimiento -->
+    <div class="feature-card card-blue">
+      <div class="card-icon">
+        <svg
+          width="48"
+          height="48"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M9 2L7.17 4H4C2.9 4 2 4.9 2 6V18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V6C22 4.9 21.1 4 20 4H16.83L15 2H9ZM12 17C9.24 17 7 14.76 7 12C7 9.24 9.24 7 12 7C14.76 7 17 9.24 17 12C17 14.76 14.76 17 12 17ZM12 9C10.34 9 9 10.34 9 12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12C15 10.34 13.66 9 12 9Z"
+            fill="white"
+          />
+        </svg>
+      </div>
+      <h2 class="card-title">
+        Módulo de Reconocimiento de Ingredientes y Estado
+      </h2>
+      <p class="card-description">
+        Escanea ingredientes y evalúa su grado de putrefacción mediante IA.
+        Puede generar resultados basados en ese escaneo, mostrando recetas de la
+        base de datos o generadas por inteligencia artificial.
+      </p>
+      <ul class="card-features">
+        <li>Reconocimiento visual de ingredientes</li>
+        <li>Análisis de frescura y calidad</li>
+        <li>Recomendaciones de conservación</li>
+      </ul>
+    </div>
+
+    <!-- Card 2: Módulo de Recetas -->
+    <div class="feature-card card-blue">
+      <div class="card-icon">
+        <svg
+          width="48"
+          height="48"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M21 5C19.89 4.65 18.67 4.5 17.5 4.5C15.55 4.5 13.45 4.9 12 6C10.55 4.9 8.45 4.5 6.5 4.5C4.55 4.5 2.45 4.9 1 6V20.65C1 20.9 1.25 21.15 1.5 21.15C1.6 21.15 1.65 21.1 1.75 21.1C3.1 20.45 5.05 20 6.5 20C8.45 20 10.55 20.4 12 21.5C13.35 20.65 15.8 20 17.5 20C19.15 20 20.85 20.3 22.25 21.05C22.35 21.1 22.4 21.1 22.5 21.1C22.75 21.1 23 20.85 23 20.6V6C22.4 5.55 21.75 5.25 21 5ZM21 18.5C19.9 18.15 18.7 18 17.5 18C15.8 18 13.35 18.65 12 19.5V8C13.35 7.15 15.8 6.5 17.5 6.5C18.7 6.5 19.9 6.65 21 7V18.5Z"
+            fill="white"
+          />
+        </svg>
+      </div>
+      <h2 class="card-title">Módulo de Recetas</h2>
+      <p class="card-description">
+        Contiene todas las recetas disponibles en la base de datos. Permite
+        explorar recetas manualmente, ver sus detalles y guardar las favoritas.
+      </p>
+      <ul class="card-features">
+        <li>Base de datos completa de recetas</li>
+        <li>Exploración manual de recetas</li>
+        <li>Guardar recetas favoritas</li>
+      </ul>
+    </div>
+
+    <!-- Card 3: Recetas Guardadas -->
+    <div class="feature-card card-blue">
+      <div class="card-icon">
+        <svg
+          width="48"
+          height="48"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M12 2L9 9L2 9.5L7.5 14.5L6 22L12 18L18 22L16.5 14.5L22 9.5L15 9L12 2Z"
+            fill="white"
+          />
+        </svg>
+      </div>
+      <h2 class="card-title">Recetas Guardadas</h2>
+      <p class="card-description">
+        Muestra las recetas que el usuario ha guardado previamente. También
+        conserva un historial con las recetas generadas por IA, sin necesidad de
+        botones de filtrado.
+      </p>
+      <ul class="card-features">
+        <li>Recetas favoritas del usuario</li>
+        <li>Historial completo de IA</li>
+        <li>Acceso rápido y organizado</li>
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}

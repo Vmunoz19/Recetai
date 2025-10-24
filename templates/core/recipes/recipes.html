@@ -1,0 +1,163 @@
+{% extends 'base.html' %} {% load static %} {% block title %} Módulo de Recetas
+- RecetaAI {% endblock %} {% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/recipes.css' %}" />
+{% endblock %} {% block content %}
+<div class="recipes-container">
+  <!-- Header -->
+  <header class="recipes-header">
+    <div class="header-content">
+      <h1>Módulo de Recetas</h1>
+      <p class="subtitle">
+        Explora todas las recetas disponibles en nuestra base de datos
+      </p>
+    </div>
+  </header>
+
+  <!-- Recipes List -->
+  <div class="recipes-list">
+    <!-- Recipe Card 1 -->
+    <article class="recipe-card">
+      <div class="recipe-image">
+        <img
+          src="https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=400&h=300&fit=crop"
+          alt="Pasta Primavera con Vegetales"
+        />
+      </div>
+      <div class="recipe-content">
+        <div class="recipe-header">
+          <h2 class="recipe-title">Pasta Primavera con Vegetales</h2>
+          <div class="recipe-rating">
+            <i class="fas fa-star"></i>
+            <span>4.5</span>
+          </div>
+        </div>
+
+        <div class="recipe-meta">
+          <div class="meta-item">
+            <i class="far fa-clock"></i>
+            <span>25 min</span>
+          </div>
+          <div class="meta-item">
+            <i class="fas fa-users"></i>
+            <span>4 porciones</span>
+          </div>
+          <div class="meta-badge easy">Fácil</div>
+        </div>
+
+        <div class="recipe-tags">
+          <span class="tag-label">
+            <i class="fas fa-star"></i>
+            Receta Fácil
+          </span>
+          <span class="tag-difficulty easy">4.5</span>
+        </div>
+
+        <div class="recipe-actions">
+          <a href="{% url 'core:recipe_detail' 1 %}" class="btn-view"
+            >Ver receta</a
+          >
+          <button class="btn-favorite">
+            <i class="far fa-heart"></i>
+          </button>
+        </div>
+      </div>
+    </article>
+
+    <!-- Recipe Card 2 -->
+    <article class="recipe-card">
+      <div class="recipe-image">
+        <img
+          src="https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=400&h=300&fit=crop"
+          alt="Ensalada Mediterránea Fresca"
+        />
+      </div>
+      <div class="recipe-content">
+        <div class="recipe-header">
+          <h2 class="recipe-title">Ensalada Mediterránea Fresca</h2>
+          <div class="recipe-rating">
+            <i class="fas fa-star"></i>
+            <span>4.8</span>
+          </div>
+        </div>
+
+        <div class="recipe-meta">
+          <div class="meta-item">
+            <i class="far fa-clock"></i>
+            <span>15 min</span>
+          </div>
+          <div class="meta-item">
+            <i class="fas fa-users"></i>
+            <span>2 porciones</span>
+          </div>
+          <div class="meta-badge easy">Fácil</div>
+        </div>
+
+        <div class="recipe-tags">
+          <span class="tag-label">
+            <i class="fas fa-star"></i>
+            Receta Fácil
+          </span>
+          <span class="tag-difficulty easy">4.8</span>
+        </div>
+
+        <div class="recipe-actions">
+          <a href="{% url 'core:recipe_detail' 2 %}" class="btn-view"
+            >Ver receta</a
+          >
+          <button class="btn-favorite">
+            <i class="far fa-heart"></i>
+          </button>
+        </div>
+      </div>
+    </article>
+
+    <!-- Recipe Card 3 -->
+    <article class="recipe-card">
+      <div class="recipe-image">
+        <img
+          src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&h=300&fit=crop"
+          alt="Tarta de Chocolate Decadente"
+        />
+      </div>
+      <div class="recipe-content">
+        <div class="recipe-header">
+          <h2 class="recipe-title">Tarta de Chocolate Decadente</h2>
+          <div class="recipe-rating">
+            <i class="fas fa-star"></i>
+            <span>4.9</span>
+          </div>
+        </div>
+
+        <div class="recipe-meta">
+          <div class="meta-item">
+            <i class="far fa-clock"></i>
+            <span>45 min</span>
+          </div>
+          <div class="meta-item">
+            <i class="fas fa-users"></i>
+            <span>8 porciones</span>
+          </div>
+          <div class="meta-badge medium">Medio</div>
+        </div>
+
+        <div class="recipe-tags">
+          <span class="tag-label">
+            <i class="fas fa-star"></i>
+            Receta Medio
+          </span>
+          <span class="tag-difficulty medium">4.9</span>
+        </div>
+
+        <div class="recipe-actions">
+          <a href="{% url 'core:recipe_detail' 3 %}" class="btn-view"
+            >Ver receta</a
+          >
+          <button class="btn-favorite">
+            <i class="far fa-heart"></i>
+          </button>
+        </div>
+      </div>
+    </article>
+  </div>
+</div>
+{% endblock %}

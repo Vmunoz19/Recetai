@@ -1,0 +1,94 @@
+{% extends 'base.html' %} {% load static %} {% block title %}Recetas Guardadas -
+RecetaAI{% endblock %} {% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/saved-recipes.css' %}?v=1.0" />
+{% endblock %} {% block content %}
+
+<div class="saved-recipes-container">
+  <div class="page-header">
+    <h1>Recetas Guardadas</h1>
+    <p class="subtitle">Accede a tus recetas favoritas y historial de IA</p>
+  </div>
+
+  <div class="saved-recipes-grid">
+    <!-- Panel izquierdo: Recetas Favoritas -->
+    <div class="favorites-panel">
+      <div class="panel-card">
+        <div class="panel-header">
+          <i class="far fa-star"></i>
+          <h2>Recetas Favoritas</h2>
+        </div>
+
+        <div class="favorites-list">
+          {% for recipe in favorite_recipes %}
+          <a
+            href="{% url 'core:recipe_detail' recipe.id %}"
+            class="favorite-card"
+          >
+            <img
+              src="{{ recipe.image }}"
+              alt="{{ recipe.name }}"
+              class="favorite-image"
+            />
+            <div class="favorite-info">
+              <h3>{{ recipe.name }}</h3>
+              <div class="favorite-meta">
+                <span class="meta-item">
+                  <i class="far fa-clock"></i>
+                  {{ recipe.time }} min
+                </span>
+                <span class="meta-item">
+                  <i class="fas fa-user"></i>
+                  {{ recipe.portions }}
+                </span>
+              </div>
+              <span class="difficulty-badge">{{ recipe.difficulty }}</span>
+            </div>
+            <button class="favorite-btn active">
+              <i class="fas fa-star"></i>
+            </button>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel derecho: Historial de IA -->
+    <div class="history-panel">
+      <div class="panel-card">
+        <div class="panel-header">
+          <i class="fas fa-magic"></i>
+          <h2>Historial de IA</h2>
+        </div>
+
+        <div class="history-list">
+          {% for item in ai_history %}
+          <div class="history-card">
+            <div class="history-header">
+              <h3>{{ item.name }}</h3>
+            </div>
+            <div class="history-date">
+              <i class="far fa-calendar"></i>
+              {{ item.date }}
+            </div>
+            <div class="history-meta">
+              <span class="meta-item">
+                <i class="far fa-clock"></i>
+                {{ item.time }} min
+              </span>
+              <span class="meta-item">
+                <i class="fas fa-user"></i>
+                {{ item.portions }} porciones
+              </span>
+            </div>
+            <button class="btn btn-view">Ver receta</button>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %} {% block extra_js %}
+<script src="{% static 'js/saved-recipes.js' %}?v=1.0"></script>
+{% endblock %}

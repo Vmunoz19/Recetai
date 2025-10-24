@@ -1,0 +1,146 @@
+{% load static %}
+
+<aside class="sidebar">
+  <!-- Logo -->
+  <div class="sidebar-logo">
+    <div class="logo-circle">
+      <img
+        src="{% static 'media/icons/gorro-de-cocinero.png' %}"
+        alt="Logo RecetaAI"
+        style="width: 32px; height: 32px; object-fit: contain"
+      />
+    </div>
+  </div>
+
+  <!-- Navigation Menu -->
+  <nav class="sidebar-nav">
+    <a
+      href="{% url 'core:home' %}"
+      class="nav-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}"
+      title="Inicio"
+    >
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M10 20V14H14V20H19V12H22L12 3L2 12H5V20H10Z"
+          fill="currentColor"
+        />
+      </svg>
+    </a>
+
+    <!-- Reconocimiento de Ingredientes -->
+    <a
+      href="{% url 'core:ingredient_recognition' %}"
+      class="nav-item {% if request.resolver_match.url_name == 'ingredient_recognition' or request.resolver_match.url_name == 'ingredient_recognition_results' %}active{% endif %}"
+      title="Reconocimiento de Ingredientes"
+    >
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M9 2L7.17 4H4C2.9 4 2 4.9 2 6V18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V6C22 4.9 21.1 4 20 4H16.83L15 2H9ZM12 17C9.24 17 7 14.76 7 12C7 9.24 9.24 7 12 7C14.76 7 17 9.24 17 12C17 14.76 14.76 17 12 17Z"
+          fill="currentColor"
+        />
+      </svg>
+    </a>
+
+    <!-- Recetas -->
+    <a
+      href="{% url 'core:recipes' %}"
+      class="nav-item {% if request.resolver_match.url_name == 'recipes' or request.resolver_match.url_name == 'recipe_detail' %}active{% endif %}"
+      title="Recetas"
+    >
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M21 5C19.89 4.65 18.67 4.5 17.5 4.5C15.55 4.5 13.45 4.9 12 6C10.55 4.9 8.45 4.5 6.5 4.5C4.55 4.5 2.45 4.9 1 6V20.65C1 20.9 1.25 21.15 1.5 21.15C1.6 21.15 1.65 21.1 1.75 21.1C3.1 20.45 5.05 20 6.5 20C8.45 20 10.55 20.4 12 21.5C13.35 20.65 15.8 20 17.5 20C19.15 20 20.85 20.3 22.25 21.05C22.35 21.1 22.4 21.1 22.5 21.1C22.75 21.1 23 20.85 23 20.6V6C22.4 5.55 21.75 5.25 21 5ZM21 18.5C19.9 18.15 18.7 18 17.5 18C15.8 18 13.35 18.65 12 19.5V8C13.35 7.15 15.8 6.5 17.5 6.5C18.7 6.5 19.9 6.65 21 7V18.5Z"
+          fill="currentColor"
+        />
+      </svg>
+    </a>
+
+    <!-- Recetas Guardadas -->
+    <a
+      href="{% url 'core:saved_recipes' %}"
+      class="nav-item {% if request.resolver_match.url_name == 'saved_recipes' %}active{% endif %}"
+      title="Recetas Guardadas"
+    >
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M12 17.27L18.18 21L16.54 13.97L22 9.24L14.81 8.63L12 2L9.19 8.63L2 9.24L7.46 13.97L5.82 21L12 17.27Z"
+          fill="currentColor"
+        />
+      </svg>
+    </a>
+  </nav>
+
+  <!-- Bottom Navigation -->
+  <div class="sidebar-bottom">
+    <a
+      href="#"
+      class="nav-item nav-item-profile"
+      data-profile-trigger
+      title="Mi Perfil"
+    >
+      {% if user.is_authenticated and user.profile_photo %}
+      <img
+        src="{{ user.profile_photo.url }}"
+        alt="Perfil"
+        class="profile-photo-icon"
+      />
+      {% else %}
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z"
+          fill="currentColor"
+        />
+      </svg>
+      {% endif %}
+    </a>
+
+    <a
+      href="{% url 'security:logout' %}"
+      class="nav-item"
+      title="Cerrar sesión"
+    >
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M17 7L15.59 8.41L18.17 11H8V13H18.17L15.59 15.59L17 17L22 12L17 7ZM4 5H12V3H4C2.9 3 2 3.9 2 5V19C2 20.1 2.9 21 4 21H12V19H4V5Z"
+          fill="currentColor"
+        />
+      </svg>
+    </a>
+  </div>
+</aside>

@@ -1,0 +1,47 @@
+{% extends 'base.html' %} {% load static %} {% block title %}Reconocimiento de
+Ingredientes - RecetaAI{% endblock %} {% block extra_css %}
+<link
+  rel="stylesheet"
+  href="{% static 'css/ingredient-recognition.css' %}?v=6.0"
+/>
+{% endblock %} {% block content %}
+
+<div class="ingredient-recognition-container">
+  <div class="page-header">
+    <h1>Módulo de Reconocimiento de Ingredientes y Estado</h1>
+    <p class="subtitle">
+      Analiza el estado de frescura de tus ingredientes con IA
+    </p>
+  </div>
+
+  <!-- Pantalla de carga de imagen -->
+  <div class="scanner-section">
+    <div class="scanner-card">
+      <div class="scanner-icon">
+        <i class="fas fa-camera"></i>
+      </div>
+      <h2>Escanea tus ingredientes</h2>
+      <p class="scanner-description">
+        Toma una foto o sube una imagen para analizar la frescura de tus
+        ingredientes
+      </p>
+      <div class="scanner-actions">
+        <a
+          href="{% url 'core:ingredient_recognition_results' %}"
+          class="btn btn-primary"
+        >
+          <i class="fas fa-camera"></i>
+          Escanear
+        </a>
+        <button class="btn btn-secondary" disabled>
+          <i class="fas fa-upload"></i>
+          Subir imagen
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %} {% block extra_js %}
+<script src="{% static 'js/ingredient-recognition.js' %}?v=2.0"></script>
+{% endblock %}

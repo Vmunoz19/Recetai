@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Registro - Recetario Inteligente</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/auth.css' %}?v=5.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+  </head>
+  <body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <!-- Logo -->
+      <div class="sidebar-logo">
+        <div class="logo-circle">
+          <img
+            src="{% static 'media/icons/gorro-de-cocinero.png' %}"
+            alt="Logo RecetaAI"
+            style="width: 32px; height: 32px; object-fit: contain"
+          />
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="sidebar-nav">
+        <!-- Espacio vacío para mantener diseño -->
+      </nav>
+
+      <!-- Bottom Items -->
+      <div class="sidebar-bottom">
+        <a
+          href="{% url 'security:login' %}"
+          class="nav-item"
+          title="Iniciar Sesión"
+        >
+          <i class="fas fa-sign-in-alt"></i>
+        </a>
+        <a
+          href="{% url 'security:register' %}"
+          class="nav-item active"
+          title="Registrarse"
+        >
+          <i class="fas fa-user-plus"></i>
+        </a>
+      </div>
+    </div>
+
+    <!-- Messages/Notifications -->
+    {% if messages %}
+    <div class="messages-container">
+      {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible">
+        <span class="alert-icon">
+          {% if message.tags == 'success' %}
+          <i class="fas fa-check-circle"></i>
+          {% elif message.tags == 'error' %}
+          <i class="fas fa-exclamation-circle"></i>
+          {% elif message.tags == 'warning' %}
+          <i class="fas fa-exclamation-triangle"></i>
+          {% elif message.tags == 'info' %}
+          <i class="fas fa-info-circle"></i>
+          {% endif %}
+        </span>
+        <span class="alert-message">{{ message }}</span>
+        <button class="alert-close">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Auth Container -->
+    <div class="auth-container">
+      <!-- Icono del chef -->
+      <div class="auth-icon register-icon">
+        <img
+          src="{% static 'media/icons/gorro-de-cocinero.png' %}"
+          alt="Logo RecetaAI"
+          style="width: 80px; height: 80px; object-fit: contain"
+        />
+      </div>
+
+      <!-- Título -->
+      <h1 class="auth-title">Recetario Inteligente</h1>
+      <p class="auth-subtitle">Crea tu cuenta nueva</p>
+
+      <!-- Contenedor del formulario -->
+      <div class="auth-box">
+        <!-- Formulario -->
+        <form method="post" class="auth-form">
+          {% csrf_token %}
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="{{ form.first_name.id_for_label }}">Nombre</label>
+              {{ form.first_name }} {% if form.first_name.errors %}
+              <div class="form-error">
+                {% for error in form.first_name.errors %}
+                <span>{{ error }}</span>
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="form-group">
+              <label for="{{ form.last_name.id_for_label }}">Apellido</label>
+              {{ form.last_name }} {% if form.last_name.errors %}
+              <div class="form-error">
+                {% for error in form.last_name.errors %}
+                <span>{{ error }}</span>
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="{{ form.email.id_for_label }}"
+              >Correo electrónico</label
+            >
+            {{ form.email }} {% if form.email.errors %}
+            <div class="form-error">
+              {% for error in form.email.errors %}
+              <span>{{ error }}</span>
+              {% endfor %}
+            </div>
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            <label for="{{ form.password1.id_for_label }}">Contraseña</label>
+            {{ form.password1 }} {% if form.password1.errors %}
+            <div class="form-error">
+              {% for error in form.password1.errors %}
+              <span>{{ error }}</span>
+              {% endfor %}
+            </div>
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            <label for="{{ form.password2.id_for_label }}"
+              >Confirmar contraseña</label
+            >
+            {{ form.password2 }} {% if form.password2.errors %}
+            <div class="form-error">
+              {% for error in form.password2.errors %}
+              <span>{{ error }}</span>
+              {% endfor %}
+            </div>
+            {% endif %}
+          </div>
+
+          <button type="submit" class="btn-submit register-btn">
+            Crear cuenta
+          </button>
+        </form>
+
+        <!-- Enlace de login -->
+        <div class="auth-footer">
+          <p>
+            ¿Ya tienes una cuenta?
+            <a href="{% url 'security:login' %}" class="register-link"
+              >Iniciar sesión</a
+            >
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{% static 'js/notifications.js' %}"></script>
+  </body>
+</html>

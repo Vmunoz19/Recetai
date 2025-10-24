@@ -1,0 +1,59 @@
+# Django
+*.log
+*.pot
+*.pyc
+__pycache__/
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Entorno virtual
+venv/
+env/
+ENV/
+
+# Variables de entorno
+.env
+.env.local
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Archivos de media (desarrollo)
+static/media/fotos_perfil/
+
+# Archivos estáticos recopilados
+staticfiles/
+static_root/
+
+# Archivos de migraciones en desarrollo (opcional, descomentar si no deseas versionar)
+# */migrations/*.py
+# !*/migrations/__init__.py
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+
+# Testing
+.pytest_cache/
+.tox/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# Backup files
+*.bak

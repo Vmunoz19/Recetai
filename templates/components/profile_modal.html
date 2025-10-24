@@ -1,0 +1,280 @@
+{% load static %}
+
+<!-- Profile Modal -->
+<div id="profileModal" class="profile-modal">
+  <div class="profile-modal-overlay"></div>
+  <div class="profile-modal-content">
+    <!-- Close Button -->
+    <button class="profile-modal-close" aria-label="Cerrar">
+      <i class="fas fa-times"></i>
+    </button>
+
+    <!-- Profile View Mode -->
+    <div id="profileViewMode" class="profile-view-mode">
+      <!-- Profile Avatar -->
+      <div class="profile-avatar">
+        <div class="avatar-circle">
+          {% if user.profile_photo %}
+            <img src="{{ user.profile_photo.url }}" alt="Foto de perfil" class="avatar-image">
+          {% else %}
+            <i class="fas fa-user"></i>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Profile Title -->
+      <h2 class="profile-title">Perfil de Usuario</h2>
+
+      <!-- Profile Info Display -->
+      <div class="profile-info-display">
+        <!-- Fila 1: Nombre y Apellido (unidos como nombre completo) -->
+        <div class="info-group info-group-full">
+          <div class="info-icon">
+            <i class="fas fa-user"></i>
+          </div>
+          <div class="info-content">
+            <span class="info-label">Nombre completo</span>
+            <span class="info-value" id="displayName">{{ user.first_name }} {{ user.last_name }}</span>
+          </div>
+        </div>
+
+        <!-- Fila 2: Correo -->
+        <div class="info-group info-group-full">
+          <div class="info-icon">
+            <i class="fas fa-envelope"></i>
+          </div>
+          <div class="info-content">
+            <span class="info-label">Correo electrónico</span>
+            <span class="info-value" id="displayEmail">{{ user.email }}</span>
+          </div>
+        </div>
+
+        <!-- Fila 3: Teléfono y Cédula -->
+        <div class="info-row">
+          <div class="info-group" {% if not user.phone_number %}style="display: none;"{% endif %}>
+            <div class="info-icon">
+              <i class="fas fa-phone"></i>
+            </div>
+            <div class="info-content">
+              <span class="info-label">Teléfono</span>
+              <span class="info-value" id="displayPhone">{{ user.phone_number|default:'' }}</span>
+            </div>
+          </div>
+
+          <div class="info-group" {% if not user.national_id %}style="display: none;"{% endif %}>
+            <div class="info-icon">
+              <i class="fas fa-id-card"></i>
+            </div>
+            <div class="info-content">
+              <span class="info-label">Cédula</span>
+              <span class="info-value" id="displayNationalId">{{ user.national_id|default:'' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fila 4: Dirección -->
+        <div class="info-group info-group-full" {% if not user.address %}style="display: none;"{% endif %}>
+          <div class="info-icon">
+            <i class="fas fa-home"></i>
+          </div>
+          <div class="info-content">
+            <span class="info-label">Dirección</span>
+            <span class="info-value" id="displayAddress">{{ user.address|default:'' }}</span>
+          </div>
+        </div>
+
+        <!-- Fila 5: Ciudad y Género -->
+        <div class="info-row">
+          <div class="info-group" {% if not user.city %}style="display: none;"{% endif %}>
+            <div class="info-icon">
+              <i class="fas fa-map-marker-alt"></i>
+            </div>
+            <div class="info-content">
+              <span class="info-label">Ciudad</span>
+              <span class="info-value" id="displayCity">{{ user.city|default:'' }}</span>
+            </div>
+          </div>
+
+          <div class="info-group" {% if not user.gender %}style="display: none;"{% endif %}>
+            <div class="info-icon">
+              <i class="fas fa-venus-mars"></i>
+            </div>
+            <div class="info-content">
+              <span class="info-label">Género</span>
+              <span class="info-value" id="displayGender">
+                {% if user.gender == 'M' %}Masculino
+                {% elif user.gender == 'F' %}Femenino
+                {% else %}{{ user.gender }}
+                {% endif %}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Edit Button -->
+      <button class="btn-edit-profile" id="btnEditProfile">
+        <i class="fas fa-pen"></i>
+        Editar información
+      </button>
+
+      <!-- Close Button -->
+      <button class="btn-close-profile" id="btnCloseProfile">
+        Cerrar
+      </button>
+    </div>
+
+    <!-- Profile Edit Mode -->
+    <div id="profileEditMode" class="profile-edit-mode" style="display: none;">
+      <!-- Profile Avatar -->
+      <div class="profile-avatar">
+        <div class="avatar-circle" id="avatarPreview">
+          {% if user.profile_photo %}
+            <img src="{{ user.profile_photo.url }}" alt="Foto de perfil" class="avatar-image" id="currentAvatar">
+          {% else %}
+            <i class="fas fa-user" id="avatarIcon"></i>
+          {% endif %}
+        </div>
+        <label for="profilePhotoInput" class="avatar-upload-label">
+          <i class="fas fa-camera"></i>
+          <span>Cambiar foto</span>
+        </label>
+      </div>
+
+      <!-- Profile Title -->
+      <h2 class="profile-title">Editar Perfil</h2>
+
+      <!-- Edit Form -->
+      <form id="profileEditForm" class="profile-edit-form" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <!-- Photo Input Hidden -->
+        <input 
+          type="file" 
+          id="profilePhotoInput" 
+          name="profile_photo" 
+          accept="image/*"
+          style="display: none;"
+        >
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="firstName" class="form-label">Nombre</label>
+            <input 
+              type="text" 
+              id="firstName" 
+              name="first_name" 
+              class="form-input" 
+              value="{{ user.first_name }}"
+              placeholder="Tu nombre"
+              required
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="lastName" class="form-label">Apellido</label>
+            <input 
+              type="text" 
+              id="lastName" 
+              name="last_name" 
+              class="form-input" 
+              value="{{ user.last_name }}"
+              placeholder="Tu apellido"
+              required
+            >
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="email" class="form-label">Correo electrónico</label>
+          <input 
+            type="email" 
+            id="email" 
+            name="email" 
+            class="form-input form-input-readonly" 
+            value="{{ user.email }}"
+            readonly
+          >
+          <small class="form-help">El correo no se puede modificar</small>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="phoneNumber" class="form-label">Teléfono</label>
+            <input 
+              type="tel" 
+              id="phoneNumber" 
+              name="phone_number" 
+              class="form-input" 
+              value="{{ user.phone_number|default:'' }}"
+              placeholder="Ej: 0999999999"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="nationalId" class="form-label">Cédula</label>
+            <input 
+              type="text" 
+              id="nationalId" 
+              name="national_id" 
+              class="form-input" 
+              value="{{ user.national_id|default:'' }}"
+              placeholder="Número de cédula"
+            >
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="address" class="form-label">Dirección</label>
+          <input 
+            type="text" 
+            id="address" 
+            name="address" 
+            class="form-input" 
+            value="{{ user.address|default:'' }}"
+            placeholder="Tu dirección"
+          >
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="city" class="form-label">Ciudad</label>
+            <input 
+              type="text" 
+              id="city" 
+              name="city" 
+              class="form-input" 
+              value="{{ user.city|default:'' }}"
+              placeholder="Tu ciudad"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="gender" class="form-label">Género</label>
+            <select 
+              id="gender" 
+              name="gender" 
+              class="form-input"
+            >
+              <option value="">Selecciona</option>
+              <option value="M" {% if user.gender == 'M' %}selected{% endif %}>Masculino</option>
+              <option value="F" {% if user.gender == 'F' %}selected{% endif %}>Femenino</option>
+              <option value="Otro" {% if user.gender == 'Otro' %}selected{% endif %}>Otro</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Save Button -->
+        <button type="submit" class="btn-save-profile" id="btnSaveProfile">
+          <i class="fas fa-save"></i>
+          Guardar cambios
+        </button>
+
+        <!-- Cancel Button -->
+        <button type="button" class="btn-cancel-profile" id="btnCancelEdit">
+          Cancelar
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

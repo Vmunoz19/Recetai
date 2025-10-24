@@ -1,0 +1,185 @@
+{% extends 'base.html' %} {% load static %} {% block title %}Resultados del
+Análisis - RecetaAI{% endblock %} {% block extra_css %}
+<link
+  rel="stylesheet"
+  href="{% static 'css/ingredient-recognition.css' %}?v=12.0"
+/>
+{% endblock %} {% block content %}
+
+<div class="ingredient-recognition-container">
+  <div class="page-header">
+    <h1>Módulo de Reconocimiento de Ingredientes y Estado</h1>
+    <p class="subtitle">
+      Analiza el estado de frescura de tus ingredientes con IA
+    </p>
+  </div>
+
+  <!-- Pantalla de resultados del análisis -->
+  <div class="results-section">
+    <!-- Panel izquierdo: Control de escaneo -->
+    <div class="left-panel">
+      <div class="scan-control-card">
+        <h3>Control de Escaneo</h3>
+        <div class="scan-actions">
+          <a
+            href="{% url 'core:ingredient_recognition' %}"
+            class="btn btn-primary"
+          >
+            <i class="fas fa-camera"></i>
+            Escanear
+          </a>
+          <button class="btn btn-secondary" disabled>
+            <i class="fas fa-upload"></i>
+            Subir imagen
+          </button>
+        </div>
+      </div>
+
+      <div class="ingredients-card">
+        <h3>Ingredientes detectados</h3>
+        <div class="ingredients-list">
+          {% for ingredient in detected_ingredients %}
+          <div class="ingredient-item">
+            <i class="fas fa-check-circle"></i>
+            <span>{{ ingredient.name }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel central: Recetas coincidentes -->
+    <div class="center-panel">
+      <div class="matching-recipes-card">
+        <h3>Recetas Coincidentes</h3>
+        <div class="recipes-list">
+          {% for recipe in matching_recipes %}
+          <a
+            href="{% url 'core:recipe_detail' recipe.id %}"
+            class="recipe-card"
+          >
+            <img
+              src="{{ recipe.image }}"
+              alt="{{ recipe.name }}"
+              class="recipe-image"
+            />
+            <div class="recipe-info">
+              <h4>{{ recipe.name }}</h4>
+              <div class="recipe-meta">
+                <span class="recipe-time">
+                  <i class="far fa-clock"></i>
+                  {{ recipe.time }} min
+                </span>
+                <span
+                  class="recipe-match match-{{ recipe.match_percentage|floatformat:0 }}"
+                >
+                  {{ recipe.match_percentage }}% coincidencia
+                </span>
+              </div>
+              <div class="recipe-ingredients">
+                {% for ingredient in recipe.matched_ingredients %}
+                <span class="ingredient-tag">{{ ingredient }}</span>
+                {% endfor %}
+                <span class="ingredient-tag more"
+                  >+{{ recipe.additional_count }}</span
+                >
+              </div>
+            </div>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel derecho: Generar con IA -->
+    <div class="right-panel">
+      <!-- Card inicial de generación con IA -->
+      <div class="ai-generate-card" id="aiGenerateCard">
+        <h3>Generar con IA</h3>
+        <div class="ai-icon">
+          <i class="fas fa-magic"></i>
+        </div>
+        <p class="ai-description">
+          Genera una receta personalizada usando los ingredientes detectados
+        </p>
+        <button class="btn btn-ai" id="generateRecipeBtn">
+          <i class="fas fa-magic"></i>
+          Generar receta con IA
+        </button>
+      </div>
+
+      <!-- Resultado de la generación con IA (ocupa el mismo espacio) -->
+      <div
+        class="generated-recipe-card"
+        id="generatedRecipeCard"
+        style="display: none"
+      >
+        <div class="recipe-header">
+          <h4>Pasta Mediterránea con Ingredientes Frescos</h4>
+          <button class="close-btn" id="closeGeneratedRecipe">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="recipe-meta-info">
+          <span>
+            <i class="fas fa-user"></i>
+            4
+          </span>
+          <span>
+            <i class="far fa-clock"></i>
+            30 min
+          </span>
+        </div>
+        <div class="recipe-content">
+          <div class="recipe-section">
+            <h5>Ingredientes:</h5>
+            <ul>
+              <li>200g pasta</li>
+              <li>2 tomates frescos</li>
+              <li>3 dientes de ajo</li>
+              <li>1 cebolla mediana</li>
+              <li>100g aceitunas</li>
+              <li>... y 5 más</li>
+            </ul>
+          </div>
+          <div class="recipe-section">
+            <h5>Pasos:</h5>
+            <ol>
+              <li>
+                Hervir agua con sal para la pasta y cocinar según instrucciones
+                del paquete.
+              </li>
+              <li>
+                Picar finamente la cebolla y el ajo. Cortar los tomates en
+                cubos.
+              </li>
+              <li>
+                En una sartén grande, calentar aceite de oliva y sofreír la
+                cebolla hasta que esté transparente.
+              </li>
+              <li>... y 6 pasos más</li>
+            </ol>
+          </div>
+        </div>
+        <div class="recipe-actions">
+          <button class="btn btn-favorite">
+            <i class="far fa-star"></i>
+            Guardar en Favoritos
+          </button>
+          <button class="btn btn-white">
+            <i class="fas fa-eye"></i>
+            Ver detalles completos
+          </button>
+          <button class="btn btn-white" id="regenerateRecipeBtn">
+            <i class="fas fa-sync-alt"></i>
+            Volver a generar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %} {% block extra_js %}
+<script src="{% static 'js/ingredient-recognition.js' %}?v=4.0"></script>
+{% endblock %}
