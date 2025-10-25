@@ -36,7 +36,10 @@
   <!-- Cards Container -->
   <div class="cards-container">
     <!-- Card 1: Módulo de Reconocimiento -->
-    <div class="feature-card card-blue">
+    <a
+      href="{% url 'core:ingredient_recognition' %}"
+      class="feature-card card-blue"
+    >
       <div class="card-icon">
         <svg
           width="48"
@@ -64,10 +67,10 @@
         <li>Análisis de frescura y calidad</li>
         <li>Recomendaciones de conservación</li>
       </ul>
-    </div>
+    </a>
 
     <!-- Card 2: Módulo de Recetas -->
-    <div class="feature-card card-blue">
+    <a href="{% url 'core:recipes' %}" class="feature-card card-blue">
       <div class="card-icon">
         <svg
           width="48"
@@ -92,10 +95,10 @@
         <li>Exploración manual de recetas</li>
         <li>Guardar recetas favoritas</li>
       </ul>
-    </div>
+    </a>
 
     <!-- Card 3: Recetas Guardadas -->
-    <div class="feature-card card-blue">
+    <a href="{% url 'core:saved_recipes' %}" class="feature-card card-blue">
       <div class="card-icon">
         <svg
           width="48"
@@ -121,7 +124,7 @@
         <li>Historial completo de IA</li>
         <li>Acceso rápido y organizado</li>
       </ul>
-    </div>
+    </a>
   </div>
 </div>
 {% endblock %}

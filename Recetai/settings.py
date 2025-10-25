@@ -81,12 +81,12 @@ WSGI_APPLICATION = 'Recetai.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': config('DB_ENGINE', default='django.db.backends.postgresql'),
-        'NAME': config('DB_NAME', default='recetario_inteligente'),
-        'USER': config('DB_USER', default='postgres'),
-        'PASSWORD': config('DB_PASSWORD', default=''),
-        'HOST': config('DB_HOST', default='localhost'),
-        'PORT': config('DB_PORT', default='5432'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'recetai',
+        'USER': 'postgres',
+        'PASSWORD': 'wilmer',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
