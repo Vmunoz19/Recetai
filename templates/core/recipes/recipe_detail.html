@@ -1,7 +1,13 @@
-{% extends 'base.html' %} {% load static %} {% block title %}{{ recipe.name }} -
-RecetaAI{% endblock %} {% block extra_css %}
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ receta.nombre }} - RecetaAI{% endblock %}
+
+{% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/recipe-detail.css' %}" />
-{% endblock %} {% block content %}
+{% endblock %}
+
+{% block content %}
 <div class="recipe-detail-wrapper">
   <!-- Header -->
   <div class="recipe-header">
@@ -9,195 +15,97 @@ RecetaAI{% endblock %} {% block extra_css %}
     <p class="page-subtitle">Instrucciones completas paso a paso</p>
   </div>
 
-  <!-- Main Layout: 3 Columns -->
+  <!-- Main Layout -->
   <div class="recipe-layout">
-    <!-- Left Column: Image and Info -->
+    <!-- Left Column -->
     <div class="recipe-left-column">
       <div class="recipe-image-card">
-        <img
-          src="https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=600&h=400&fit=crop"
-          alt="Pasta Primavera con Vegetales"
-          class="recipe-main-image"
-        />
+        {% if receta.image_url %}
+          <img src="{{ receta.image_url }}" alt="{{ receta.nombre }}" class="recipe-main-image">
+        {% else %}
+          <img src="{% static 'media/placeholders/recipe-placeholder.jpg' %}" alt="{{ receta.nombre }}" class="recipe-main-image">
+        {% endif %}
       </div>
 
       <div class="recipe-info-card">
-        <h2 class="recipe-title">Pasta Primavera con Vegetales</h2>
+        <h2 class="recipe-title">{{ receta.nombre }}</h2>
         <div class="recipe-rating">
           <i class="fas fa-star"></i>
-          <span class="rating-value">4.5</span>
+          <span class="rating-value">{{ receta.valoracion|default:"0.0" }}</span>
         </div>
-        <p class="recipe-description">
-          Una deliciosa pasta primavera cargada de vegetales frescos y sabores
-          mediterráneos. Perfecta para una cena ligera y saludable.
-        </p>
+        {% if receta.descripcion %}
+          <p class="recipe-description">{{ receta.descripcion }}</p>
+        {% endif %}
 
         <div class="recipe-meta">
           <div class="meta-item">
             <i class="far fa-clock"></i>
-            <span>25 min</span>
+            <span>{% if receta.duracion %}{{ receta.duracion }} min{% else %}-{% endif %}</span>
           </div>
           <div class="meta-item">
             <i class="fas fa-users"></i>
-            <span>4 porciones</span>
+            <span>{{ receta.porciones }} porciones</span>
           </div>
-          <div class="meta-badge easy">Fácil</div>
+          <div class="meta-badge 
+            {% if receta.dificultad.nivel|lower == 'fácil' %}easy
+            {% elif receta.dificultad.nivel|lower == 'medio' %}medium
+            {% else %}hard{% endif %}">
+            {{ receta.dificultad.nivel }}
+          </div>
         </div>
 
-        <button class="btn-save-recipe">
-          <i class="far fa-star"></i>
-          Guardar receta
-        </button>
+        <button class="btn btn-save-recipe {% if is_favorite %}active{% endif %}" data-recipe-id="{{ receta.id }}">
+         <i class="{% if is_favorite %}fas{% else %}far{% endif %} fa-star"></i>
+         {% if is_favorite %}Receta guardada{% else %}Guardar receta{% endif %}
+        </button> 
       </div>
     </div>
 
-    <!-- Center Column: Ingredients -->
+    <!-- Center Column: Ingredientes -->
     <div class="recipe-center-column">
       <div class="section-header">
         <h3 class="section-title">Ingredientes</h3>
-        <span class="availability-badge">4/9 disponibles</span>
       </div>
 
       <div class="ingredients-list">
-        <div class="ingredient-item available">
-          <i class="fas fa-check-circle check-icon"></i>
-          <i class="fas fa-shopping-cart item-icon"></i>
-          <span class="ingredient-name">Pasta penne</span>
-          <span class="ingredient-amount">400g</span>
-        </div>
-
-        <div class="ingredient-item available">
-          <i class="fas fa-check-circle check-icon"></i>
-          <i class="fas fa-apple-whole item-icon"></i>
-          <span class="ingredient-name">Tomates cherry</span>
-          <span class="ingredient-amount">300g</span>
-        </div>
-
+        {% for ri in receta.recetaingrediente_set.all %}
         <div class="ingredient-item">
           <i class="fas fa-shopping-cart item-icon"></i>
-          <span class="ingredient-name">Calabacín</span>
-          <span class="ingredient-amount">2 unidades</span>
+          <span class="ingredient-name">{{ ri.ingrediente.nombre_singular }}</span>
+          <span class="ingredient-amount">
+            {% if ri.cantidad %}{{ ri.cantidad }}{% endif %}
+            {% if ri.unidad_medida %} {{ ri.unidad_medida.nombre }}{% endif %}
+          </span>
         </div>
-
-        <div class="ingredient-item">
-          <i class="fas fa-shopping-cart item-icon"></i>
-          <span class="ingredient-name">Pimiento rojo</span>
-          <span class="ingredient-amount">1 unidad</span>
-        </div>
-
-        <div class="ingredient-item available">
-          <i class="fas fa-check-circle check-icon"></i>
-          <i class="fas fa-mortar-pestle item-icon"></i>
-          <span class="ingredient-name">Ajo</span>
-          <span class="ingredient-amount">3 dientes</span>
-        </div>
-
-        <div class="ingredient-item available">
-          <i class="fas fa-check-circle check-icon"></i>
-          <i class="fas fa-seedling item-icon"></i>
-          <span class="ingredient-name">Albahaca fresca</span>
-          <span class="ingredient-amount">1/2 taza</span>
-        </div>
-
-        <div class="ingredient-item">
-          <i class="fas fa-shopping-cart item-icon"></i>
-          <span class="ingredient-name">Aceite de oliva</span>
-          <span class="ingredient-amount">3 cucharadas</span>
-        </div>
-
-        <div class="ingredient-item">
-          <i class="fas fa-shopping-cart item-icon"></i>
-          <span class="ingredient-name">Queso parmesano</span>
-          <span class="ingredient-amount">100g</span>
-        </div>
-
-        <div class="ingredient-item available">
-          <i class="fas fa-check-circle check-icon"></i>
-          <i class="fas fa-salt-shaker item-icon"></i>
-          <span class="ingredient-name">Sal y pimienta</span>
-          <span class="ingredient-amount">Al gusto</span>
-        </div>
+        {% empty %}
+        <p class="no-ingredients">No hay ingredientes registrados para esta receta.</p>
+        {% endfor %}
       </div>
     </div>
 
-    <!-- Right Column: Instructions -->
+    <!-- Right Column: Instrucciones -->
     <div class="recipe-right-column">
       <div class="section-header">
         <h3 class="section-title">Instrucciones</h3>
       </div>
 
       <div class="instructions-list">
+        {% for paso in receta.pasoinstruccion_set.all %}
         <div class="instruction-step">
-          <div class="step-number">1</div>
+          <div class="step-number">{{ paso.orden }}</div>
           <div class="step-content">
-            <p>
-              Hierve una olla grande con agua salada y cocina la pasta penne
-              según las instrucciones del paquete hasta que esté al dente.
-            </p>
+            <p>{{ paso.texto }}</p>
           </div>
         </div>
-
-        <div class="instruction-step">
-          <div class="step-number">2</div>
-          <div class="step-content">
-            <p>
-              Mientras tanto, corta los tomates cherry por la mitad, el
-              calabacín en rodajas y el pimiento en tiras finas.
-            </p>
-          </div>
-        </div>
-
-        <div class="instruction-step">
-          <div class="step-number">3</div>
-          <div class="step-content">
-            <p>
-              Calienta el aceite de oliva en una sartén grande a fuego medio.
-              Añade el ajo picado y cocina por <strong>1 minuto</strong> hasta
-              que esté fragante.
-            </p>
-          </div>
-        </div>
-
-        <div class="instruction-step">
-          <div class="step-number">4</div>
-          <div class="step-content">
-            <p>
-              Agrega el calabacín, pimiento y tomates a la sartén. Cocina por
-              5-7 minutos hasta que los vegetales estén tiernos.
-            </p>
-          </div>
-        </div>
-
-        <div class="instruction-step">
-          <div class="step-number">5</div>
-          <div class="step-content">
-            <p>
-              Escurre la pasta y añádela a la sartén con los vegetales. Mezcla
-              suavemente.
-            </p>
-          </div>
-        </div>
-
-        <div class="instruction-step">
-          <div class="step-number">6</div>
-          <div class="step-content">
-            <p>
-              Añade la albahaca fresca picada, sal y pimienta al gusto. Mezcla
-              todo bien.
-            </p>
-          </div>
-        </div>
-
-        <div class="instruction-step">
-          <div class="step-number">7</div>
-          <div class="step-content">
-            <p>Sirve inmediatamente con queso parmesano rallado por encima.</p>
-          </div>
-        </div>
+        {% empty %}
+        <p class="no-instructions">Aún no se han agregado instrucciones.</p>
+        {% endfor %}
       </div>
     </div>
   </div>
 </div>
-{% endblock %} {% block extra_js %}
+{% endblock %}
+
+{% block extra_js %}
 <script src="{% static 'js/recipe-detail.js' %}"></script>
 {% endblock %}

@@ -1,23 +1,68 @@
-// Recipe Detail Functionality
+// Recipe Detail Functionality (limpio)
 document.addEventListener("DOMContentLoaded", function () {
-  // Save Recipe Button
-  const saveButton = document.querySelector(".btn-save-recipe");
-  if (saveButton) {
-    saveButton.addEventListener("click", function () {
-      // Toggle saved state
-      const icon = this.querySelector("i");
-      if (icon.classList.contains("far")) {
-        icon.classList.remove("far");
-        icon.classList.add("fas");
-        this.textContent = " Receta guardada";
-        this.prepend(icon);
-        // Aquí puedes agregar lógica para guardar en el backend
-      } else {
-        icon.classList.remove("fas");
-        icon.classList.add("far");
-        this.textContent = " Guardar receta";
-        this.prepend(icon);
+  // Función utilitaria para obtener la cookie CSRF
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return null;
+  }
+
+  // Toggle favorito mediante llamada POST
+  async function toggleFavorite(recipeId, button) {
+    if (button) button.disabled = true;
+    try {
+      const res = await fetch(`/recipe/${recipeId}/favorite/`, {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {
+          'X-CSRFToken': getCookie('csrftoken'),
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+      });
+
+      if (res.status === 401) {
+        window.location.href = `/auth/login/?next=${encodeURIComponent(window.location.pathname)}`;
+        return;
       }
+
+      if (!res.ok) {
+        let errMsg = 'Error al guardar favorito';
+        try {
+          const errJson = await res.json();
+          if (errJson && errJson.error) errMsg = errJson.error;
+        } catch (e) {}
+        throw new Error(errMsg);
+      }
+
+      let data = null;
+      try {
+        data = await res.json();
+      } catch (e) {
+        throw new Error('Respuesta inválida del servidor');
+      }
+
+      if (data.is_favorite) {
+        button.classList.add('active');
+        button.innerHTML = '<i class="fas fa-star"></i> Receta guardada';
+      } else {
+        button.classList.remove('active');
+        button.innerHTML = '<i class="far fa-star"></i> Guardar receta';
+      }
+    } catch (e) {
+      console.error(e);
+      alert('No se pudo guardar la receta. Intenta de nuevo.');
+    } finally {
+      if (button) button.disabled = false;
+    }
+  }
+
+  // Conectar el botón de guardar receta
+  const saveButton = document.querySelector('.btn-save-recipe');
+  if (saveButton) {
+    saveButton.addEventListener('click', function () {
+      const recipeId = this.getAttribute('data-recipe-id');
+      toggleFavorite(recipeId, this);
     });
   }
 
@@ -59,8 +104,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Update Availability Counter
   function updateAvailabilityCounter() {
-    const totalIngredients =
-      document.querySelectorAll(".ingredient-item").length;
+    const totalIngredients = document.querySelectorAll(".ingredient-item").length;
     const availableIngredients = document.querySelectorAll(
       ".ingredient-item.available"
     ).length;
@@ -95,3 +139,5 @@ document.addEventListener("DOMContentLoaded", function () {
     observer.observe(step);
   });
 });
+
+// Nota: se eliminaron llamadas `await fetch` colocadas en top-level que rompían la ejecución.

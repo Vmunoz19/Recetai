@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'apps.Core',
     'apps.security',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [
@@ -82,9 +83,9 @@ WSGI_APPLICATION = 'Recetai.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'recetai',
+        'NAME': 'RECETAI',
         'USER': 'postgres',
-        'PASSWORD': 'wilmer',
+        'PASSWORD': '1234',
         'HOST': 'localhost',
         'PORT': '5432',
     }

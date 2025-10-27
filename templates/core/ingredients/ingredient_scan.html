@@ -13,29 +13,71 @@ Ingredientes - RecetaAI{% endblock %} {% block extra_css %}
       Analiza el estado de frescura de tus ingredientes con IA
     </p>
   </div>
-
   <!-- Pantalla de carga de imagen -->
-  <div class="scanner-section">
-    <div class="scanner-card">
-      <div class="scanner-icon">
-        <i class="fas fa-camera"></i>
-      </div>
-      <h2>Escanea tus ingredientes</h2>
-      <p class="scanner-description">
-        Toma una foto o sube una imagen para analizar la frescura de tus
-        ingredientes
-      </p>
-      <div class="scanner-actions">
-        <a
-          href="{% url 'core:ingredient_recognition_results' %}"
-          class="btn btn-primary"
-        >
+  <div class="scanner-section" style="margin-top:18px">
+      <div class="scanner-card">
+        <div class="scanner-icon">
           <i class="fas fa-camera"></i>
-          Escanear
-        </a>
-        <button class="btn btn-secondary" disabled>
-          <i class="fas fa-upload"></i>
-          Subir imagen
+        </div>
+        <h2>Escanea tus ingredientes</h2>
+        <p class="scanner-description">
+          Usa la cámara para detectar ingredientes en tiempo real. Los
+          resultados aparecerán abajo.
+        </p>
+
+        <div class="scanner-actions">
+          <button id="startScannerBtn" class="btn btn-primary">
+            <i class="fas fa-play"></i>
+            Iniciar cámara
+          </button>
+          <button id="stopScannerBtn" class="btn btn-secondary" disabled>
+            <i class="fas fa-stop"></i>
+            Detener
+          </button>
+        </div>
+        <div class="scanner-status" style="margin-top:8px">
+          <span id="scannerStatus" class="badge badge-muted">Detenido</span>
+          <small id="scannerLastUpdate" style="margin-left:12px;color:#6b7280">Última actualización: —</small>
+        </div>
+
+        <!-- Video preview + snapshots (hidden inicialmente) -->
+        <div class="camera-preview" style="margin-top:12px; display:none">
+          <video id="cameraVideo" autoplay playsinline style="max-width:100%; border-radius:8px; background:#000"></video>
+          <canvas id="cameraCanvas" style="display:none"></canvas>
+        </div>
+      </div>
+  </div>
+
+  <!-- Results: ingredientes detectados + recetas -->
+  <div class="results-section" style="margin-top:18px">
+    <div class="left-panel">
+      <div class="ingredients-card">
+        <h3>Ingredientes detectados</h3>
+        <div class="ingredients-list">
+          <!-- llenado dinámico por JS -->
+        </div>
+      </div>
+    </div>
+
+    <div class="center-panel">
+      <div class="matching-recipes-card">
+        <h3>Recetas Coincidentes</h3>
+        <div class="recipes-list">
+          <!-- llenado dinámico por JS -->
+        </div>
+      </div>
+    </div>
+
+    <div class="right-panel">
+      <div class="ai-generate-card" id="aiGenerateCard">
+        <h3>Generar con IA</h3>
+        <div class="ai-icon">
+          <i class="fas fa-magic"></i>
+        </div>
+        <p class="ai-description">Genera una receta personalizada usando los ingredientes detectados</p>
+        <button class="btn btn-ai" id="generateRecipeBtn">
+          <i class="fas fa-magic"></i>
+          Generar receta con IA
         </button>
       </div>
     </div>
@@ -43,5 +85,5 @@ Ingredientes - RecetaAI{% endblock %} {% block extra_css %}
 </div>
 
 {% endblock %} {% block extra_js %}
-<script src="{% static 'js/ingredient-recognition.js' %}?v=2.0"></script>
+<script src="{% static 'js/ingredient-recognition.js' %}?v=3.0"></script>
 {% endblock %}

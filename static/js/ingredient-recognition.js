@@ -230,3 +230,219 @@ window.ingredientRecognition = {
   simulateScan,
   processUploadedImage,
 };
+
+/* ---- Nueva lógica: captura desde la cámara y envío al servidor ---- */
+async function sendFrameToServer(blob) {
+  const fd = new FormData();
+  fd.append('image', blob, 'frame.jpg');
+
+  const csrftoken = (function(){
+    const v = `; ${document.cookie}`.split(`; csrftoken=`);
+    if (v.length===2) return v.pop().split(';').shift();
+    return null;
+  })();
+
+  const res = await fetch('/ingredients/api/detect/', {
+    method: 'POST',
+    credentials: 'same-origin',
+    headers: {
+      'X-CSRFToken': csrftoken
+    },
+    body: fd
+  });
+  if (!res.ok) {
+    let body = null;
+    try {
+      body = await res.json();
+    } catch (e) {
+      try { body = await res.text(); } catch (e2) { body = null; }
+    }
+    console.error('Server returned', res.status, body);
+    return null;
+  }
+  try {
+    return await res.json();
+  } catch (e) {
+    console.error('Invalid JSON from detect API', e);
+    return null;
+  }
+}
+
+function startCameraScan() {
+  const startBtn = document.getElementById('startScannerBtn');
+  const stopBtn = document.getElementById('stopScannerBtn');
+  const video = document.getElementById('cameraVideo');
+  const canvas = document.getElementById('cameraCanvas');
+  const preview = document.querySelector('.camera-preview');
+
+  let stream = null;
+  let intervalId = null;
+  let isRequesting = false; // evita solapamiento de requests
+  let frozen = false; // cuando el usuario detiene, results se "congelan"
+
+  async function start() {
+    try {
+      console.log('[scanner] start() called - requesting camera');
+      stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
+      console.log('[scanner] getUserMedia succeeded', stream);
+      video.srcObject = stream;
+      // try to ensure playback starts
+      try { await video.play(); } catch (e) { /* autoplay may be blocked */ }
+      preview.style.display = '';
+      console.log('[scanner] preview displayed');
+      startBtn.disabled = true;
+      stopBtn.disabled = false;
+
+      const ctx = canvas.getContext('2d');
+
+      const CAPTURE_INTERVAL = 1500; // ms, puede ajustarse
+
+      async function captureAndSend() {
+        try {
+          if (isRequesting) return; // ya hay una petición en curso
+          if (!video.videoWidth || !video.videoHeight) return;
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          isRequesting = true;
+          // compress to jpeg and send
+          console.log('[scanner] sending frame', { time: new Date().toISOString() });
+          canvas.toBlob(async (blob) => {
+            if (!blob) { isRequesting = false; return; }
+            const data = await sendFrameToServer(blob);
+            isRequesting = false;
+            if (!data) {
+              console.warn('[scanner] detect API returned no data');
+              return;
+            }
+            // Debug: log raw detection response so the developer can inspect structure
+            console.log('[scanner] detection response', data);
+            if (!frozen) {
+              updateDetectionUI(data);
+              updateScannerStatus(true);
+            }
+            updateLastUpdateTimestamp();
+          }, 'image/jpeg', 0.7);
+        } catch (err) {
+          console.error('captureAndSend error', err);
+          isRequesting = false;
+        }
+      }
+
+      // esperar a que el video tenga metadatos para asegurar dimensiones
+      video.addEventListener('loadedmetadata', function onMeta() {
+        console.log('[scanner] video loadedmetadata', { w: video.videoWidth, h: video.videoHeight });
+        // enviar primer frame ahora que sabemos las dimensiones
+        try { captureAndSend(); } catch (e) { console.error('[scanner] capture error after metadata', e); }
+        // iniciar intervalo regular
+        intervalId = setInterval(captureAndSend, CAPTURE_INTERVAL);
+        video.removeEventListener('loadedmetadata', onMeta);
+      });
+
+      // fallback: si no se dispara loadedmetadata en X ms, iniciar de todas formas
+      setTimeout(() => {
+        if (!intervalId) {
+          console.warn('[scanner] loadedmetadata not fired, starting capture fallback');
+          try { captureAndSend(); } catch (e) { console.error('[scanner] fallback capture error', e); }
+          intervalId = setInterval(captureAndSend, CAPTURE_INTERVAL);
+        }
+      }, 1200);
+
+    } catch (e) {
+      console.error('camera start error', e);
+      alert('No se pudo acceder a la cámara. Comprueba permisos.');
+    }
+  }
+
+  function stop() {
+    if (intervalId) clearInterval(intervalId);
+    if (stream) {
+      stream.getTracks().forEach(t => t.stop());
+      stream = null;
+    }
+    // ocultar vista previa de cámara, pero mantener resultados en DOM
+    preview.style.display = 'none';
+    startBtn.disabled = false;
+    stopBtn.disabled = true;
+    // marcar como "congelado" para que no se sobreescriban los resultados
+    frozen = true;
+    updateScannerStatus(false);
+  }
+
+  startBtn.addEventListener('click', start);
+  stopBtn.addEventListener('click', stop);
+}
+
+function updateDetectionUI(data) {
+  // data: {detected, detected_summary, mapped_ingredients, matching_recipes}
+  const leftList = document.querySelector('.ingredients-list');
+  if (leftList) {
+    leftList.innerHTML = '';
+    const detected = data.detected || [];
+    detected.forEach(d => {
+      const div = document.createElement('div');
+      div.className = 'ingredient-item';
+      div.innerHTML = `<i class="fas fa-check-circle"></i> <span>${d.label} ${d.score? '('+ (d.score*100).toFixed(0)+'%':''}</span>`;
+      // mostrar frescura si existe
+      if (d.freshness) {
+        const fres = document.createElement('small');
+        fres.style.display='block';
+        fres.style.color = d.freshness === 'fresh' ? '#166534' : '#991b1b';
+        fres.textContent = `Estado: ${d.freshness} ${d.freshness_conf? '('+ (d.freshness_conf*100).toFixed(0)+'%'+')':''}`;
+        div.appendChild(fres);
+      }
+      leftList.appendChild(div);
+    });
+  }
+
+  // rellenar recetas
+  const recipesContainer = document.querySelector('.matching-recipes-card .recipes-list');
+  if (recipesContainer) {
+    recipesContainer.innerHTML = '';
+    (data.matching_recipes || []).forEach(r => {
+      const a = document.createElement('a');
+      a.className = 'recipe-card';
+      a.href = `/recipe/${r.id}/`;
+      a.innerHTML = `
+        <img src="${r.image_url||''}" alt="${r.nombre}" class="recipe-image" />
+        <div class="recipe-info">
+          <h4>${r.nombre}</h4>
+          <div class="recipe-meta">
+            <span class="recipe-match">${r.match_percentage}% coincidencia</span>
+          </div>
+        </div>
+      `;
+      recipesContainer.appendChild(a);
+    });
+  }
+}
+
+function updateScannerStatus(isLive) {
+  const status = document.getElementById('scannerStatus');
+  if (!status) return;
+  if (isLive) {
+    status.textContent = 'En vivo';
+    status.classList.remove('badge-muted');
+    status.classList.add('badge-success');
+    status.style.background = '#10b981';
+    status.style.color = '#fff';
+  } else {
+    status.textContent = 'Congelado';
+    status.classList.remove('badge-success');
+    status.classList.add('badge-muted');
+    status.style.background = '#6b7280';
+    status.style.color = '#fff';
+  }
+}
+
+function updateLastUpdateTimestamp() {
+  const el = document.getElementById('scannerLastUpdate');
+  if (!el) return;
+  const d = new Date();
+  el.textContent = `Última actualización: ${d.toLocaleTimeString()}`;
+}
+
+// Auto-initialize camera UI if elements are present
+document.addEventListener('DOMContentLoaded', () => {
+  if (document.getElementById('startScannerBtn')) startCameraScan();
+});

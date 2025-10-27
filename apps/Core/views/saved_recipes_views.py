@@ -1,74 +1,47 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
+from django.db.models import Prefetch
 
+from apps.Core.models import RecetaFavorita, HistorialRecetaGenerada, RecetaGenerada
 
 @login_required
 def saved_recipes_view(request):
-    """Vista de recetas guardadas: favoritas e historial de IA"""
-    
-    # Datos quemados - Recetas Favoritas
+    """
+    Muestra las recetas favoritas del usuario y su historial de IA.
+    Compatible con el template saved_recipes.html.
+    """
+
+    # Recetas favoritas del usuario
     favorite_recipes = [
         {
-            'id': 1,
-            'name': 'Pasta Primavera con Vegetales',
-            'image': 'https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=400&h=300&fit=crop',
-            'time': 25,
-            'portions': 4,
-            'difficulty': 'Fácil',
-        },
-        {
-            'id': 2,
-            'name': 'Ensalada César con Pollo',
-            'image': 'https://images.unsplash.com/photo-1546793665-c74683f339c1?w=400&h=300&fit=crop',
-            'time': 20,
-            'portions': 2,
-            'difficulty': 'Fácil',
-        },
-        {
-            'id': 3,
-            'name': 'Risotto de Champiñones',
-            'image': 'https://images.unsplash.com/photo-1546793665-c74683f339c1?w=400&h=300&fit=crop',
-            'time': 35,
-            'portions': 4,
-            'difficulty': 'Media',
-        },
+            "id": fav.receta.id,
+            "name": fav.receta.nombre,
+            "image": fav.receta.image_url,
+            "time": fav.receta.duracion or 0,
+            "portions": fav.receta.porciones or 1,
+            "difficulty": fav.receta.dificultad.nivel if fav.receta.dificultad else "—",
+        }
+        for fav in RecetaFavorita.objects.select_related(
+            "receta", "receta__dificultad"
+        ).filter(usuario=request.user)
     ]
-    
-    # Datos quemados - Historial de IA (recetas generadas)
+
+    # Historial de recetas generadas con IA
     ai_history = [
         {
-            'id': 1,
-            'name': 'Pasta Mediterránea con Ingredientes Frescos',
-            'date': '24 oct, 09:26',
-            'time': 30,
-            'portions': 4,
-        },
-        {
-            'id': 2,
-            'name': 'Pasta Mediterránea con Ingredientes Frescos',
-            'date': '24 oct, 11:12',
-            'time': 30,
-            'portions': 4,
-        },
-        {
-            'id': 3,
-            'name': 'Tacos de Pollo con Aguacate',
-            'date': '23 oct, 18:45',
-            'time': 25,
-            'portions': 3,
-        },
-        {
-            'id': 4,
-            'name': 'Sopa de Verduras al Estilo Casero',
-            'date': '23 oct, 14:20',
-            'time': 40,
-            'portions': 6,
-        },
+            "name": item.receta_generada.nombre,
+            "date": item.receta_generada.created_at.strftime("%d %b %Y") if hasattr(item.receta_generada, "created_at") else "",
+            "time": item.receta_generada.duracion if hasattr(item.receta_generada, "duracion") else "",
+            "portions": item.receta_generada.porciones if hasattr(item.receta_generada, "porciones") else "",
+        }
+        for item in HistorialRecetaGenerada.objects.select_related(
+            "receta_generada"
+        ).filter(usuario=request.user)
     ]
-    
+
     context = {
-        'favorite_recipes': favorite_recipes,
-        'ai_history': ai_history,
+        "favorite_recipes": favorite_recipes,
+        "ai_history": ai_history,
     }
-    
-    return render(request, 'core/saved_recipes/saved_recipes.html', context)
+
+    return render(request, "core/saved_recipes/saved_recipes.html", context)

@@ -1,8 +1,30 @@
-asgiref==3.10.0
+# --- Core Django backend ---
 Django==5.2.7
+asgiref==3.10.0
 sqlparse==0.5.3
-typing_extensions==4.15.0
 tzdata==2025.2
 python-decouple==3.8
 psycopg2-binary==2.9.11
+
+# --- Utilidades y librerías base ---
+typing_extensions==4.15.0
+requests
+numpy<2
 Pillow==11.3.0
+opencv-python
+
+# --- IA y modelos ---
+torch==2.3.0
+torchvision==0.18.0
+
+# --- API y servicios ---
+fastapi
+uvicorn
+python-multipart
+gradio
+
+# --- Detectron2 (importante: instala luego según tu versión de Torch/CUDA) ---
+# Detectron2 no se instala directamente desde aquí.
+# Usa uno de estos comandos después de instalar este requirements:
+#   CPU: pip install detectron2 -f https://dl.fbaipublicfiles.com/detectron2/wheels/cpu/torch2.3/index.html
+#   CUDA 12.1: pip install detectron2 -f https://dl.fbaipublicfiles.com/detectron2/wheels/cu121/torch2.3/index.html

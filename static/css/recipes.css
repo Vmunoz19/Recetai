@@ -291,3 +291,214 @@
     font-size: 18px;
   }
 }
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin: 2.5rem auto;
+  padding: 1rem 1.5rem;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+  width: fit-content;
+}
+
+.pagination-info {
+  font-size: 0.95rem;
+  color: #444;
+  background: #f6f7fb;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #e0e3ec;
+  box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.02);
+}
+
+.pagination-btn {
+  background-color: #8a9efc;
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 0.6rem 1.3rem;
+  border-radius: 10px;
+  transition: all 0.25s ease-in-out;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  border: none;
+  outline: none;
+}
+.pagination-btn:focus,
+.pagination-btn:active {
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(138, 158, 252, 0.2); /* halo suave, sin borde fuerte */
+}
+.pagination-btn:hover {
+  background-color: #7385f6;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+.pagination-button:hover {
+  background-color: #5865d3;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.pagination-info {
+  color: #555;
+  font-size: 0.95rem;
+  background: #f5f7fb;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 1px #e1e5f2;
+}
+
+/* Filters panel (hidden behind magnifier button) */
+.header-actions {
+  margin-left: 16px;
+  display: flex;
+  align-items: center;
+  position: relative; /* para posicionar el panel absoluto respecto a este contenedor */
+}
+/* Especificidad mayor para asegurar que los estilos se apliquen sobre resets globales */
+.recipes-container .header-actions .filters-toggle-btn {
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 12px !important;
+  border: none !important;
+  background: linear-gradient(135deg, #a4b5d8 0%, #8b9fc4 100%) !important;
+  color: #fff !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 12px rgba(138, 158, 252, 0.2) !important;
+  transition: transform 0.18s ease, box-shadow 0.18s ease !important;
+}
+.recipes-container .header-actions .filters-toggle-btn:hover {
+  transform: translateY(-2px) !important;
+}
+
+.recipes-container .filters-panel {
+  /* position will be computed by JS so it can open to the right of the button.
+     Use fixed positioning to avoid parent container clipping. On small screens
+     media query will override to static/full-width. */
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 520px !important;
+  max-width: calc(100vw - 48px) !important;
+  margin: 0 !important;
+  background: #ffffff !important;
+  border-radius: 12px !important;
+  padding: 16px !important;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08) !important;
+  transform-origin: left top !important;
+  opacity: 0 !important;
+  transform: translateX(8px) scale(0.98) !important;
+  pointer-events: none !important;
+  transition: opacity 180ms ease, transform 180ms ease !important;
+  z-index: 9999 !important;
+}
+
+/* Inline (always visible) layout for filters when placed above the list */
+.recipes-container .filters-panel.inline {
+  position: static !important;
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 0 20px 0 !important;
+  border-radius: 8px !important;
+  padding: 12px 16px !important;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.04) !important;
+  transform: none !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  transition: none !important;
+}
+.recipes-container .filters-panel[aria-hidden="false"], .recipes-container .filters-panel.open {
+  opacity: 1 !important;
+  transform: translateX(0) scale(1) !important;
+  pointer-events: auto !important;
+}
+
+.filters-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.filters-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.filters-row input[type="text"], .filters-row input[type="number"], .filters-row select {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #e6e9f2;
+  background: #fbfcff;
+  color: #333;
+  min-width: 140px;
+}
+.filters-row label {
+  display: flex;
+  flex-direction: column;
+  font-size: 13px;
+  color: #4b5563;
+}
+.filters-actions {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+/* Botones de Filtrar / Limpiar dentro del panel de filtros */
+.filters-actions .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: transform 140ms ease, box-shadow 140ms ease, opacity 120ms ease;
+}
+
+.filters-actions .btn:focus,
+.filters-actions .btn:active {
+  outline: none;
+  transform: translateY(-1px);
+}
+
+/* Primary (Filtrar) */
+.filters-actions .btn-primary {
+  background: linear-gradient(135deg, #6f8be6 0%, #4f6fe0 100%);
+  color: #fff;
+  box-shadow: 0 6px 18px rgba(79, 111, 224, 0.16);
+}
+.filters-actions .btn-primary:hover {
+  background: linear-gradient(135deg, #5476df 0%, #3b5ad1 100%);
+}
+
+/* Secondary (Limpiar) */
+.filters-actions .btn-secondary {
+  background: transparent;
+  color: #374151;
+  border: 1px solid #e6e9f2;
+  box-shadow: none;
+}
+.filters-actions .btn-secondary:hover {
+  background: #f7f9ff;
+}
+
+@media (max-width: 480px) {
+  .filters-actions { flex-direction: column; gap: 8px; }
+  .filters-actions .btn { width: 100%; }
+}
+
+@media (max-width: 768px) {
+  .filters-row { flex-direction: column; align-items: stretch; }
+  .filters-actions { justify-content: center; margin-left: 0; }
+  .filters-toggle-btn { width: 44px; height: 44px; }
+  .recipes-container .filters-panel { position: static !important; transform: none !important; opacity: 1 !important; pointer-events: auto !important; width: 100% !important; }
+}
