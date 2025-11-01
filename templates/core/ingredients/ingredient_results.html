@@ -180,6 +180,27 @@ Análisis - RecetaAI{% endblock %} {% block extra_css %}
   </div>
 </div>
 
-{% endblock %} {% block extra_js %}
 <script src="{% static 'js/ingredient-recognition.js' %}?v=4.0"></script>
+
+<script>
+function renderIngredients(data) {
+  const cont = document.getElementById('ingredientResults');
+  if (!cont) return;
+  cont.innerHTML = "";
+  if (!data.ingredients || !data.ingredients.length) {
+    cont.innerHTML = "<p>Sin ingredientes detectados.</p>";
+    return;
+  }
+  const ul = document.createElement('ul');
+  data.ingredients.forEach(([name, conf, fresh]) => {
+    let emoji = fresh === "fresh" ? "🟢" : (fresh === "medium" ? "🟡" : "🔴");
+    const li = document.createElement('li');
+    li.textContent = `${emoji} ${name} (${(conf * 100).toFixed(1)}%)`;
+    ul.appendChild(li);
+  });
+  cont.appendChild(ul);
+}
+</script>
+
+<div id="ingredientResults" style="margin-top:10px;"></div>
 {% endblock %}

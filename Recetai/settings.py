@@ -42,9 +42,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # Necesario para TrigramSimilarity y búsquedas Postgres
+    'django.contrib.postgres',
+
+    # apps
     'apps.Core',
     'apps.security',
-    'django_extensions',
 ]
 
 MIDDLEWARE = [

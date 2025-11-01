@@ -415,6 +415,10 @@ function updateDetectionUI(data) {
       recipesContainer.appendChild(a);
     });
   }
+  // Mostrar lista simplificada con semáforo (🟢🟡🔴)
+  if (typeof renderIngredients === "function") {
+    renderIngredients(data);
+  }
 }
 
 function updateScannerStatus(isLive) {
@@ -446,3 +450,47 @@ function updateLastUpdateTimestamp() {
 document.addEventListener('DOMContentLoaded', () => {
   if (document.getElementById('startScannerBtn')) startCameraScan();
 });
+
+
+// Utilidad para mostrar errores en UI
+function showDetectError(message) {
+  let el = document.getElementById('detectErrorBanner');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'detectErrorBanner';
+    el.style.background = '#fee2e2';
+    el.style.color = '#991b1b';
+    el.style.padding = '10px 14px';
+    el.style.margin = '10px 0';
+    el.style.border = '1px solid #fecaca';
+    el.style.borderRadius = '6px';
+    el.style.fontSize = '14px';
+    const container = document.querySelector('.ingredient-recognition-container') || document.body;
+    container.prepend(el);
+  }
+  el.textContent = message || 'Ocurrió un error procesando la imagen.';
+}
+
+// Ejemplo de uso en tu fetch hacia /ingredients/api/detect/
+async function postFrameToDetect(endpointUrl, blob) {
+  try {
+    const fd = new FormData();
+    fd.append('image', blob, 'frame.jpg');
+    const res = await fetch(endpointUrl, { method: 'POST', body: fd });
+    if (!res.ok) {
+      const txt = await res.text();
+      showDetectError(`Error del servidor (${res.status}). ${txt?.slice(0, 160)}`);
+      return null;
+    }
+    const json = await res.json();
+    if (!json || !Array.isArray(json.detected)) {
+      showDetectError('Respuesta inválida de la API de detección.');
+      return null;
+    }
+    return json;
+  } catch (err) {
+    console.error(err);
+    showDetectError('No se pudo contactar a la API de detección.');
+    return null;
+  }
+}

@@ -1,119 +1,130 @@
 import unicodedata
+import re
 from typing import Set, List
+from django.contrib.postgres.search import TrigramSimilarity
+from django.db.models import Q
+from apps.Core.models import Ingrediente
 
-# Diccionario de traducción inglés -> español (básico, ampliable)
+# Diccionario de traducción inglés -> español (ampliable)
 EN_TO_ES = {
-    'tomato': ['tomate'],
-    'potato': ['patata', 'papa'],
-    'onion': ['cebolla'],
-    'garlic': ['ajo'],
-    'carrot': ['zanahoria'],
-    'lettuce': ['lechuga'],
-    'cucumber': ['pepino'],
-    'egg': ['huevo'],
-    'milk': ['leche'],
-    'cheese': ['queso'],
-    'chicken': ['pollo'],
-    'beef': ['carne', 'carne de res'],
-    'pork': ['cerdo'],
-    'mushroom': ['champiñón', 'hongo'],
-    'apple': ['manzana'],
-    'banana': ['platano', 'banana', 'banano'],
-    'orange': ['naranja'],
-    'strawberry': ['fresa', 'frutilla'],
-    'grape': ['uva'],
-    'avocado': ['aguacate'],
-    'rice': ['arroz'],
-    'pasta': ['pasta'],
-    'pepper': ['pimiento'],
-    'chili': ['aji', 'chile', 'guindilla'],
-    'lemon': ['limon'],
-    'lime': ['lima'],
-    'pineapple': ['piña'],
+    "apple": "manzana",
+    "banana": "plátano",
+    "pear": "pera",
+    "strawberry": "fresa",
+    "mango": "mango",
+    "pineapple": "piña",
+    "grape": "uva",
+    "orange": "naranja",
+    "lemon": "limón",
+    "melon": "melón",
+    "watermelon": "sandía",
+    "coconut": "coco",
+    "papaya": "papaya",
+    "kiwi": "kiwi",
+    "raspberry": "frambuesa",
+    "blueberry": "arándano",
+    "peach": "durazno",
+    "guava": "guayaba",
+    "passion fruit": "maracuyá",
+    "cherry": "cereza",
+    "tomato": "tomate",
+    "onion": "cebolla",
+    "garlic": "ajo",
+    "carrot": "zanahoria",
+    "potato": "papa",
+    "pepper": "pimiento",
+    "bell pepper": "pimiento",
+    "chili": "chile",
+    "cucumber": "pepino",
+    "spinach": "espinaca",
+    "lettuce": "lechuga",
+    "broccoli": "brócoli",
+    "cauliflower": "coliflor",
+    "zucchini": "calabacín",
+    "eggplant": "berenjena",
+    "celery": "apio",
+    "corn": "maíz",
+    "bean": "frijol",
+    "chickpea": "garbanzo",
+    "chicken": "pollo",
+    "beef": "carne de res",
+    "pork": "cerdo",
+    "fish": "pescado",
+    "egg": "huevo",
+    "milk": "leche",
+    "cheese": "queso",
+    "butter": "mantequilla",
+    "rice": "arroz",
+    "bread": "pan",
+    "sugar": "azúcar",
+    "salt": "sal",
+    "olive oil": "aceite de oliva",
 }
 
-# Sinónimos / variantes (puedes ampliarlo)
-SYNONYMS = {
-    'tomato': ['tomatoes', 'tomatillo'],
-    'potato': ['potatoes', 'papa'],
-    'banana': ['bananas', 'plantain'],
-    'egg': ['eggs'],
-    'cheese': ['quesos'],
+STOPWORDS = {
+    'gramos','g','ml','mililitros','litro','litros','taza','tazas','cucharada','cucharadas',
+    'sopera','postre','mitad','media','libra','libras','paquete','atado','copita','chorro',
+    'botella','bote','sobre','sobres','centimetros','cm','cubicos','cc','kilogramo',
+    'kilogramos','kg','barra','barras','puñado','medio','y','de','el','la','los','las',
+    'al','del','a','s','(s)'
 }
 
+def _strip_accents(s: str) -> str:
+    return ''.join(c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn')
 
-def _strip_accents(text: str) -> str:
-    nk = unicodedata.normalize('NFKD', text)
-    return ''.join([c for c in nk if not unicodedata.combining(c)])
+def _normalize_token_stream(text: str) -> List[str]:
+    text = text.lower()
+    text = re.sub(r'[^a-záéíóúñü\s]', ' ', text)
+    tokens = [t for t in text.split() if t and t not in STOPWORDS]
+    return tokens
 
+def normalizar_ingrediente(nombre: str) -> str:
+    if not nombre:
+        return ""
+    txt = nombre.strip().lower()
+    # quitar acentos
+    txt_no_acc = _strip_accents(txt)
+    tokens = _normalize_token_stream(txt_no_acc)
+    return " ".join(tokens).strip()
 
-def _singularize_en(word: str) -> str:
-    # heurística simple: quita 'es' o 's' al final si parece plural
-    if word.endswith('ies'):
-        return word[:-3] + 'y'
-    if word.endswith('es'):
-        return word[:-2]
-    if word.endswith('s') and len(word) > 3:
-        return word[:-1]
-    return word
-
-
-def generate_label_candidates(raw_label: str) -> Set[str]:
-    """Genera un conjunto de candidatos (ingles/español/sinónimos/normalizados)
-
-    Ejemplo: 'Tomatoes' -> {'tomatoes','tomato','tomate','tomates','tomatillo', ...}
-    """
-    if not raw_label:
-        return set()
-
-    label = raw_label.strip().lower()
-    # normalize hyphens/underscores
-    label = label.replace('_', ' ').replace('-', ' ')
-
-    candidates: Set[str] = set()
-    candidates.add(label)
-
-    # strip accents
-    no_acc = _strip_accents(label)
-    candidates.add(no_acc)
-
-    # singularize simple english plurals
-    singular = _singularize_en(no_acc)
-    candidates.add(singular)
-
-    # add translation (if known)
-    # try singular english key, then raw
-    if singular in EN_TO_ES:
-        for t in EN_TO_ES[singular]:
-            candidates.add(t)
-            candidates.add(_strip_accents(t.lower()))
-    if label in EN_TO_ES:
-        for t in EN_TO_ES[label]:
-            candidates.add(t)
-            candidates.add(_strip_accents(t.lower()))
-
-    # synonyms for english label
-    if singular in SYNONYMS:
-        for s in SYNONYMS[singular]:
-            candidates.add(s)
-            candidates.add(_strip_accents(s.lower()))
-    if label in SYNONYMS:
-        for s in SYNONYMS[label]:
-            candidates.add(s)
-            candidates.add(_strip_accents(s.lower()))
-
-    # also try splitting multi-word labels and keep components
-    parts = [p for p in label.split() if p]
-    for p in parts:
-        candidates.add(p)
-        candidates.add(_strip_accents(p))
-        candidates.add(_singularize_en(p))
-
-    # final cleanup: strip and remove empty
-    cleaned = {c.strip() for c in candidates if c and c.strip()}
-    return cleaned
-
+def _candidates_from_label_en(label_en: str) -> Set[str]:
+    out: Set[str] = set()
+    if not label_en:
+        return out
+    k = label_en.strip().lower()
+    if k in EN_TO_ES:
+        out.add(EN_TO_ES[k])
+    out.add(k)
+    return {normalizar_ingrediente(x) for x in out if x}
 
 def map_label_to_db_candidates(raw_label: str) -> List[str]:
-    """Convenience: devuelve lista ordenada de candidatos para consulta DB."""
-    return sorted(list(generate_label_candidates(raw_label)))
+    return sorted(list(_candidates_from_label_en(raw_label)))
+
+def buscar_en_bd(candidates: List[str]):
+    """
+    Busca ingredientes coincidentes usando similitud trigram y fallback icontains.
+    Evita usar union() para compatibilidad total.
+    """
+    from apps.Core.models import Ingrediente
+    if not candidates:
+        return Ingrediente.objects.none()
+
+    ids = set()
+
+    # Trigram primero
+    for c in candidates:
+        if not c:
+            continue
+        for ing in Ingrediente.objects.annotate(sim=TrigramSimilarity('nombre_singular', c)).filter(sim__gt=0.30):
+            ids.add(ing.id)
+
+    # Fallback icontains con y sin acentos
+    for c in candidates:
+        if not c:
+            continue
+        for ing in Ingrediente.objects.filter(nombre_singular__icontains=c):
+            ids.add(ing.id)
+        for ing in Ingrediente.objects.filter(nombre_singular__icontains=_strip_accents(c)):
+            ids.add(ing.id)
+
+    return Ingrediente.objects.filter(id__in=list(ids))
